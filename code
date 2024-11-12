@@ -1,0 +1,97 @@
+import tkinter as tk  
+from tkinter import filedialog  
+from tkinterdnd2 import TkinterDnD, DND_FILES  
+from PIL import Image, ImageTk 
+
+window = TkinterDnD.Tk()
+window.title("Air Tracker")  
+
+window.state('zoomed') 
+window.configure(bg='#000000')
+
+icon_path = "C:/images/download 1.png"  
+
+try:
+    icon_image = Image.open(icon_path)
+    icon_image = icon_image.resize((300, 300), Image.Resampling.LANCZOS)
+    icon_photo = ImageTk.PhotoImage(icon_image)
+
+except FileNotFoundError:
+    print(f"Error: The image file was not found at {icon_path}.")
+    icon_photo = None
+
+def upload_file():
+    file_path = filedialog.askopenfilename()
+    print(f"File uploaded: {file_path}")
+
+def on_drop(event):
+    file_path = event.data
+    print(f"File dropped: {file_path}")
+
+header_label = tk.Label(
+    window,
+    text="Empowering Interaction with a Wave – Revolutionizing Presentations through Gesture Control.",
+    fg="white",  
+    bg="#000000",  
+    font=("Helvetica", 17),  
+    wraplength=600,  
+    justify="center"
+)
+header_label.pack(pady=(20, 10), padx=20, fill=tk.X)
+
+frame = tk.Frame(window, bg='#000000')
+frame.pack(pady=20, padx=20, fill=tk.BOTH, expand=True)
+
+drag_drop_canvas = tk.Canvas(
+    frame,
+    bg='#000000',
+    highlightthickness=0  
+)
+drag_drop_canvas.pack(padx=20, pady=20, expand=True, fill=tk.BOTH)
+
+def create_dashed_rectangle(event=None):
+    dash_pattern = (10, 10)
+    
+    canvas_width = drag_drop_canvas.winfo_width()
+    canvas_height = drag_drop_canvas.winfo_height()
+
+    drag_drop_canvas.delete("all")
+
+    if icon_photo:
+        drag_drop_canvas.create_image(canvas_width // 2, canvas_height // 2 - 40, image=icon_photo)
+
+    rect_width = 500  
+    rect_height = 400  
+
+    x1 = (canvas_width - rect_width) // 2
+    y1 = (canvas_height - rect_height) // 2
+    x2 = x1 + rect_width
+    y2 = y1 + rect_height
+
+    drag_drop_canvas.create_rectangle(
+        x1, y1, x2, y2,  
+        outline="white",  
+        dash=dash_pattern,  
+        width=1  
+    )
+
+    text_label.place(relx=0.5, rely=0.55, anchor="center")
+    upload_button.place(relx=0.5, rely=0.7, anchor="center")
+
+drag_drop_canvas.bind("<Configure>", create_dashed_rectangle)
+
+text_label = tk.Label(drag_drop_canvas, text="Drag and Drop \nOr", fg="white", bg="#000000", font=("Helvetica", 20))
+
+upload_button = tk.Button(
+    drag_drop_canvas,
+    text="Upload",
+    command=upload_file,
+    bg="#0000FF",  
+    fg="white",  
+    font=("Helvetica", 18)
+)
+
+drag_drop_canvas.drop_target_register(DND_FILES)
+drag_drop_canvas.dnd_bind('<<Drop>>', on_drop)
+
+window.mainloop()
